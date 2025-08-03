@@ -7,7 +7,7 @@ Route::get('/', function () {
     return redirect()->route('expiry-tag-generator');
 })->name('home');
 
-Route::middleware(['guest'])
+Route::middleware(['web', 'guest'])
     ->group(function () {
         Route::get('/generate', ExpiryTagGenerator::class)->name('expiry-tag-generator');
     });
