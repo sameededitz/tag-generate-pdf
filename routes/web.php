@@ -3,7 +3,10 @@
 use App\Livewire\ExpiryTagGenerator;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ExpiryTagGenerator::class)->name('expiry-tag-generator');
+Route::middleware(['guest'])
+    ->group(function () {
+        Route::get('/', ExpiryTagGenerator::class)->name('expiry-tag-generator');
+    });
 
 Route::get('/view', function () {
     return view('exports.pdf', [
