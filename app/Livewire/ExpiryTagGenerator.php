@@ -15,8 +15,8 @@ class ExpiryTagGenerator extends Component
     {
         $this->title = 'A.S Bakers';
         $this->address = 'RachnaTown, Main Bazar, Faisalabad';
-        $this->mfg_date = now()->toDateString();
-        $this->exp_date = now()->addDays(7)->toDateString();
+        $this->mfg_date = now()->format('m-d-y');
+        $this->exp_date = now()->addDays(7)->format('m-d-y');
     }
 
     public function generatePDF()
@@ -71,7 +71,6 @@ class ExpiryTagGenerator extends Component
 
     public function setCustomExpiry()
     {
-        // dd($this->custom_days);
         if (!$this->mfg_date) {
             $this->addError('mfg_date', 'Please select MFG date first.');
             return;
