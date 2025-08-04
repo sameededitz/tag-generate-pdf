@@ -6,7 +6,8 @@
     <style>
         @page {
             size: A4;
-            margin: 1.5mm; /* Change  */
+            margin: 1.5mm;
+            /* Change  */
             orientation: portrait;
         }
 
@@ -23,19 +24,20 @@
 
         .row {
             width: 100%;
-            margin-bottom: 1mm;
+            /* margin-bottom: 1mm; */
         }
 
         .tag {
             width: 49mm;
             height: auto;
-            min-height: 25mm;
+            min-height: 26.5mm;
             border: 1px solid #000;
             box-sizing: border-box;
             padding: 1mm;
             text-align: center;
+            align-content: center;
             float: left;
-            margin-right: 0.5mm;
+            /* margin-right: 0.5mm; */
             page-break-inside: avoid;
         }
 
@@ -56,9 +58,24 @@
         }
 
         .address {
-            font-size: 8pt;
+            font-size: 7pt;
             line-height: 1.1;
+            font-weight: 600;
             margin-bottom: 1.5mm;
+        }
+
+        /* Date container to hold both dates in one line */
+        .dates-container {
+            line-height: 1.1;
+        }
+
+        .date-section {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .date-section:first-child {
+            margin-right: 4%;
         }
 
         .date-section {
@@ -66,6 +83,7 @@
             line-height: 1.1;
             margin-bottom: 0.8mm;
         }
+
         .date-section:last-child {
             margin-bottom: 0;
         }
@@ -89,13 +107,19 @@
                     <div class="tag">
                         <div class="title">{{ strtoupper($title) }}</div>
                         <div class="address">{{ strtoupper($address) }}</div>
-                        <div class="date-section">
-                            <div class="label">Mfg Date</div>
-                            <div class="date-value">{{ \Carbon\Carbon::parse($mfg_date)->format('d/m/y') }}</div>
-                        </div>
-                        <div class="date-section">
-                            <div class="label">Exp Date</div>
-                            <div class="date-value">{{ \Carbon\Carbon::parse($exp_date)->format('d/m/y') }}</div>
+                        <div class="dates-container">
+                            <div class="date-section">
+                                <div class="label">Mfg Date</div>
+                                <div class="date-value">
+                                    {{ \Carbon\Carbon::createFromFormat('m-d-y', $mfg_date)->format('d/m/y') }}
+                                </div>
+                            </div>
+                            <div class="date-section">
+                                <div class="label">Exp Date</div>
+                                <div class="date-value">
+                                    {{ \Carbon\Carbon::createFromFormat('m-d-y', $exp_date)->format('d/m/y') }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endfor

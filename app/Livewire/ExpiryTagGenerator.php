@@ -11,6 +11,8 @@ class ExpiryTagGenerator extends Component
     public $title, $address, $mfg_date, $exp_date;
     public $custom_days;
 
+    protected $dateFormat = 'm-d-y';
+
     public function mount()
     {
         $this->title = 'A.S Bakers';
@@ -21,12 +23,29 @@ class ExpiryTagGenerator extends Component
 
     public function generatePDF()
     {
-        $this->validate([
+        try {
+            $mfg = Carbon::createFromFormat($this->dateFormat, $this->mfg_date);
+            $exp = Carbon::createFromFormat($this->dateFormat, $this->exp_date);
+        } catch (\Exception $e) {
+            $this->addError('mfg_date', 'Invalid date format.');
+            return;
+        }
+
+        // Temporarily override validated attributes with parsed versions
+        $validatedData = [
+            'title' => $this->title,
+            'address' => $this->address,
+            'mfg_date' => $mfg->format('Y-m-d'),
+            'exp_date' => $exp->format('Y-m-d'),
+        ];
+
+        // Manually validate
+        validator($validatedData, [
             'title' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'mfg_date' => 'required|date',
             'exp_date' => 'required|date|after_or_equal:mfg_date',
-        ]);
+        ])->validate();
 
         $data = [
             'title' => $this->title,
@@ -36,7 +55,7 @@ class ExpiryTagGenerator extends Component
         ];
 
         $pdf = Pdf::loadView('exports.pdf', $data);
-        $pdf->setPaper('A4', 'portrait');
+        $pdf->setPaper('a4', 'portrait');
         $pdf->setOptions([
             'dpi' => 150,
             'defaultFont' => 'sans-serif'
@@ -44,7 +63,7 @@ class ExpiryTagGenerator extends Component
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->stream();
-        }, 'expiry_tags.pdf');
+        }, 'expiry_tags_' . now()->format('YmdHis') . '.pdf');
     }
 
     public function render()
@@ -62,11 +81,15 @@ class ExpiryTagGenerator extends Component
             return;
         }
 
-        $parsedDays = intval($days); // in case user enters string
+        try {
+            $baseDate = Carbon::createFromFormat($this->dateFormat, $this->mfg_date);
 
-        $this->exp_date = \Carbon\Carbon::parse($this->mfg_date)
-            ->addDays($parsedDays)
-            ->format('Y-m-d');
+            $this->exp_date = $baseDate
+                ->addDays(intval($days))
+                ->format($this->dateFormat);
+        } catch (\Exception $e) {
+            $this->addError('mfg_date', 'Invalid MFG date format.');
+        }
     }
 
     public function setCustomExpiry()
@@ -81,8 +104,20 @@ class ExpiryTagGenerator extends Component
             return;
         }
 
-        $this->exp_date = Carbon::parse($this->mfg_date)
-            ->addDays((int)$this->custom_days)
-            ->format('Y-m-d');
+        $days = $this->custom_days;
+        if (empty($days)) {
+            $this->addError('custom_days', 'Please enter the number of days.');
+            return;
+        }
+
+        try {
+            $baseDate = Carbon::createFromFormat($this->dateFormat, $this->mfg_date);
+
+            $this->exp_date = $baseDate
+                ->addDays(intval($days))
+                ->format($this->dateFormat);
+        } catch (\Exception $e) {
+            $this->addError('mfg_date', 'Invalid MFG date format.');
+        }
     }
 }

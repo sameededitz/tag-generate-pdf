@@ -28,7 +28,7 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">MFG Date</label>
-                        <input type="date" class="form-control" wire:model.defer="mfg_date">
+                        <input type="text" id="mfg_date" class="form-control" wire:model.live="mfg_date">
                         @error('mfg_date')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
@@ -41,7 +41,7 @@
                         </label>
 
                         <div class="input-group mb-2">
-                            <input type="date" class="form-control" wire:model.defer="exp_date">
+                            <input type="text" id="exp_date" class="form-control" wire:model.live="exp_date">
                             <div class="input-group-text p-0">
                                 <button type="button" wire:click="setExpiry(7)"
                                     class="btn btn-sm btn-outline-secondary">+7d</button>
@@ -73,3 +73,20 @@
         </div>
     </div>
 </div>
+@script
+    <script>
+        flatpickr("#mfg_date", {
+            dateFormat: "m-d-y",
+            onChange: function(selectedDates, dateStr, instance) {
+                @this.set('mfg_date', dateStr);
+            }
+        });
+
+        flatpickr("#exp_date", {
+            dateFormat: "m-d-y",
+            onChange: function(selectedDates, dateStr, instance) {
+                @this.set('exp_date', dateStr);
+            }
+        });
+    </script>
+@endscript
